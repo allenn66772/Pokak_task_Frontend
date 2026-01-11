@@ -1,7 +1,84 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUserAPI, registerUserAPI } from "./service/allAPI";
 
 function Auth({register}) {
+  const [userDetails,setuserDetails]=useState({
+    username:"",
+    email:"",
+    password:""
+  })
+  console.log(userDetails);
+  const navigate=useNavigate()
+
+  //register Function
+  const Handleregister = async () => {
+  const { username, email, password } = userDetails;
+
+  if (!username || !email || !password) {
+    alert("Fill all fields completely");
+    return;
+  }
+
+  try {
+    const result = await registerUserAPI(userDetails);
+    alert("Register successful");
+
+    setuserDetails({
+      username: "",
+      email: "",
+      password: ""
+    });
+    navigate("/")
+
+  } catch (error) {
+    // ✅ Handle 409 / 402 / 500 here
+    alert(error.response?.data || "Something went wrong");
+  }
+};
+
+//Login 
+const handleLogin=async ()=>{
+  const {email,password}=userDetails
+
+
+  if(!email || !password){
+    alert("Fill the form Completely")
+  }else{
+    const result=await loginUserAPI(userDetails)
+    console.log(result);
+    if(result.status==200){
+      sessionStorage.setItem(
+        "existingUser",JSON.stringify(result.data.existingUser)
+      )
+      sessionStorage.setItem("token",result.data.token)
+      alert("Login Successful")
+      navigate("/add-task")
+      setuserDetails({
+        email:"",
+        password:""
+      })
+    }else if(result.status==404){
+      alert(result.status.data)
+      setuserDetails({
+        email:"",
+        password:""
+        
+      })
+    }else{
+      alert("Somrthing went Wrong")
+      setuserDetails({
+        email:"",
+        password:""
+      })
+    }
+    
+  }
+}
+
+
+
+  
     
   return (
     <>
@@ -68,13 +145,13 @@ function Auth({register}) {
 </div>
 {/* input fields */}
 {register && <div className="mt-8 flex flex-col items-center space-y-6">
-    <input placeholder="Name" type="text" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
+    <input value={userDetails?.username} onChange={(e)=>{setuserDetails({...userDetails,username:e.target.value})}} placeholder="Name" type="text" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
 </div>}
 <div className="mt-8 flex flex-col items-center space-y-6">
-    <input placeholder="Email" type="email" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
+    <input value={userDetails?.email} onChange={(e)=>{setuserDetails({...userDetails,email:e.target.value})}} placeholder="Email" type="email" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
 </div>
 <div className="mt-8 flex flex-col items-center space-y-6">
-    <input placeholder="Password" type="text" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
+    <input value={userDetails?.password} onChange={(e)=>{setuserDetails({...userDetails,password:e.target.value})}} placeholder="Password" type="text" className="w-80 border-b outline-none py-2 text-sm placeholder-gray-400" />
 </div>
 
 {register ?<div className="mt-3 flex flex-col items-center space-y-6">
@@ -84,10 +161,10 @@ function Auth({register}) {
     <p>New user ? <Link to={"/register"} className="text-blue-500">Register</Link></p>
 </div>}
 <div className="mt-8 flex flex-col items-center space-y-6">
- {register ?  <button className="bg-gray-50 w-40 h-9 rounded-xl shadow-md shadow-gray-300">
+ {register ?  <button onClick={Handleregister} className="bg-gray-50 w-40 h-9 rounded-xl shadow-md shadow-gray-300">
   Register
 </button>:
-<button className="bg-gray-50 w-40 h-9 rounded-xl shadow-md shadow-gray-300">
+<button onClick={handleLogin} className="bg-gray-50 w-40 h-9 rounded-xl shadow-md shadow-gray-300">
   login
 </button>}
 
