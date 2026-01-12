@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { addTaskAPI } from "./service/allAPI";
+import { Link } from "react-router-dom";
 
 function AddTask() {
   const [value, setValue] = useState(dayjs());
@@ -80,9 +81,23 @@ function AddTask() {
 
       {/* Main */}
       <main className="flex-1 px-10 py-8 relative">
-        <h2 className="flex items-center gap-3 font-extrabold text-3xl mb-6">
-          New Task <MdAddReaction />
-        </h2>
+       
+   <div className="flex gap-3">
+<Link
+  to="/view-task"
+  className="w-24 h-9 flex items-center justify-center
+             bg-blue-700 text-white rounded-2xl
+             border border-blue-600
+             hover:bg-white hover:text-blue-600
+             transition duration-200"
+>
+  View Tasks
+</Link>
+          <h2 className="flex items-center gap-3 font-extrabold text-3xl mb-6">
+            New Task <MdAddReaction />
+          </h2>
+         
+   </div>
 
         {/* Inputs */}
         <div className="space-y-4 max-w-2xl">

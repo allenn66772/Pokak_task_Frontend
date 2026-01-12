@@ -32,7 +32,7 @@ function Auth({register}) {
     navigate("/")
 
   } catch (error) {
-    // ✅ Handle 409 / 402 / 500 here
+   
     alert(error.response?.data || "Something went wrong");
   }
 };

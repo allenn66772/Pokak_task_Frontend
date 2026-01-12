@@ -17,3 +17,7 @@ export const addTaskAPI=async(reqbody,reqHeader)=>{
 export const viewTaskAPI = async (reqHeader)=>{
     return await commonAPI("GET",`${SERVERURL}/get-tasks`,"",reqHeader);
 };
+//delete task
+export const deleteTaskAPI = async (id, reqHeader) => {
+  return await commonAPI("DELETE",`${SERVERURL}/delete-task/${id}`,"",reqHeader);
+};
