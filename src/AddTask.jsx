@@ -6,28 +6,36 @@ import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { addTaskAPI } from "./service/allAPI";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function AddTask() {
   const [value, setValue] = useState(dayjs());
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("");
-
   const [checked, setChecked] = useState(false);
   const [repeat, setRepeat] = useState("Daily");
   const [days, setDays] = useState([]);
-
   const [tags, setTags] = useState([]);
   const [showTagModal, setShowTagModal] = useState(false);
   const [newTag, setNewTag] = useState("");
 
   const defaultTags = ["Daily Routine", "Study Routine"];
 
-  // ---------------- ADD TASK ----------------
+  const resetFields = () => {
+    setTitle("");
+    setDescription("");
+    setColor("");
+    setTags([]);
+    setRepeat("Daily");
+    setDays([]);
+    setChecked(false);
+    setValue(dayjs());
+  };
+
   const handleAddTask = async () => {
-    if (!title) {
-      alert("Title is required");
+    if (!title || !description || !color) {
+      toast.info("All Fields Required");
       return;
     }
 
@@ -35,7 +43,8 @@ function AddTask() {
       title,
       description,
       color,
-      date: value,
+      category: tags[0] || "",
+      date: dayjs(value).startOf("day").toDate(),
       isRepeatEnabled: checked,
       repeatType: repeat,
       repeatDays: days,
@@ -44,29 +53,23 @@ function AddTask() {
 
     try {
       const token = sessionStorage.getItem("token");
-
-      const reqHeader = {
-        Authorization: `Bearer ${token}`,
-      };
-
+      const reqHeader = { Authorization: `Bearer ${token}` };
       const result = await addTaskAPI(taskData, reqHeader);
 
       if (result?.status === 200) {
-        alert("Task added successfully");
-        console.log(result.data);
-        
+        toast.success("Task added successfully");
+        resetFields();
       }
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create task");
+    } catch {
+      toast.error("Failed to create task");
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-90 bg-white p-6">
-        <h1 className="text-xl font-bold mb-6">Listify</h1>
+      <aside className="w-full lg:w-90 bg-white p-4 lg:p-6">
+        <h1 className="text-xl font-bold mb-4">Listify</h1>
 
         <h3 className="text-sm font-medium mb-2">
           {value.format("MMMM YYYY")}
@@ -77,30 +80,29 @@ function AddTask() {
         </LocalizationProvider>
       </aside>
 
-      <div className="w-px bg-gray-300" />
+      <div className="hidden lg:block w-px bg-gray-300" />
 
       {/* Main */}
-      <main className="flex-1 px-10 py-8 relative">
-       
-   <div className="flex gap-3">
-<Link
-  to="/view-task"
-  className="w-24 h-9 flex items-center justify-center
-             bg-blue-700 text-white rounded-2xl
-             border border-blue-600
-             hover:bg-white hover:text-blue-600
-             transition duration-200"
->
-  View Tasks
-</Link>
-          <h2 className="flex items-center gap-3 font-extrabold text-3xl mb-6">
+      <main className="flex-1 px-4 lg:px-10 py-6 lg:py-8 relative">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
+          <Link
+            to="/view-task"
+            className="w-fit px-4 h-9 flex items-center justify-center
+              bg-blue-700 text-white rounded-2xl
+              border border-blue-600
+              hover:bg-white hover:text-blue-600 transition"
+          >
+            View Tasks
+          </Link>
+
+          <h2 className="flex items-center gap-3 font-extrabold text-2xl lg:text-3xl">
             New Task <MdAddReaction />
           </h2>
-         
-   </div>
+        </div>
 
         {/* Inputs */}
-        <div className="space-y-4 max-w-2xl">
+        <div className="space-y-4 max-w-2xl w-full">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -143,7 +145,7 @@ function AddTask() {
         </div>
 
         {/* Repeat + Tags */}
-        <div className="mt-8 bg-white rounded-xl shadow p-6 max-w-3xl grid grid-cols-2 gap-6">
+        <div className="mt-8 bg-white rounded-xl shadow p-4 lg:p-6 max-w-3xl grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Repeat */}
           <div>
             <h4 className="font-medium mb-2">Repeat</h4>
@@ -205,27 +207,25 @@ function AddTask() {
             <h4 className="font-medium mb-3">Tags</h4>
 
             <div className="flex gap-2 flex-wrap">
-              {[...defaultTags, ...tags.filter(t => !defaultTags.includes(t))].map(
-                (tag) => (
-                  <span
-                    key={tag}
-                    onClick={() =>
-                      setTags(
-                        tags.includes(tag)
-                          ? tags.filter((t) => t !== tag)
-                          : [...tags, tag]
-                      )
-                    }
-                    className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
+              {[...defaultTags, ...tags.filter(t => !defaultTags.includes(t))].map(tag => (
+                <span
+                  key={tag}
+                  onClick={() =>
+                    setTags(
                       tags.includes(tag)
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100"
-                    }`}
-                  >
-                    {tag}
-                  </span>
-                )
-              )}
+                        ? tags.filter((t) => t !== tag)
+                        : [...tags, tag]
+                    )
+                  }
+                  className={`px-3 py-1 rounded-full text-xs cursor-pointer ${
+                    tags.includes(tag)
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100"
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
 
               <span
                 onClick={() => setShowTagModal(true)}
@@ -240,7 +240,9 @@ function AddTask() {
         {/* Submit */}
         <button
           onClick={handleAddTask}
-          className="absolute bottom-8 right-8 w-12 h-12 bg-white shadow hover:bg-black hover:text-white rounded-full flex items-center justify-center"
+          className="fixed lg:absolute bottom-6 right-6 w-11 h-11 lg:w-12 lg:h-12
+          bg-white shadow hover:bg-black hover:text-white
+          rounded-full flex items-center justify-center"
         >
           <FiCheck />
         </button>

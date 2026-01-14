@@ -3,6 +3,7 @@ import "./App.css";
 import Auth from "./Auth";
 import AddTask from "./AddTask";
 import View_List from "./View_List";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return <>
@@ -13,6 +14,12 @@ function App() {
     <Route path="/add-task" element={<AddTask/>}/>
     <Route path="/view-task" element={<View_List/>}/>
   </Routes>
+
+  <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        theme="colored"
+      />
   </>;
 }
 
