@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUserAPI, registerUserAPI } from "./service/allAPI";
+import { toast } from "react-toastify";
 
 function Auth({register}) {
   const [userDetails,setuserDetails]=useState({
@@ -16,13 +17,13 @@ function Auth({register}) {
   const { username, email, password } = userDetails;
 
   if (!username || !email || !password) {
-    alert("Fill all fields completely");
+    toast.info("Fill all fields completely");
     return;
   }
 
   try {
     const result = await registerUserAPI(userDetails);
-    alert("Register successful");
+    toast.success("Register successful");
 
     setuserDetails({
       username: "",
@@ -43,7 +44,7 @@ const handleLogin=async ()=>{
 
 
   if(!email || !password){
-    alert("Fill the form Completely")
+    toast.info("Fill the form Completely")
   }else{
     const result=await loginUserAPI(userDetails)
     console.log(result);
@@ -52,7 +53,7 @@ const handleLogin=async ()=>{
         "existingUser",JSON.stringify(result.data.existingUser)
       )
       sessionStorage.setItem("token",result.data.token)
-      alert("Login Successful")
+      toast.success("Login Successful")
       navigate("/add-task")
       setuserDetails({
         email:"",
@@ -66,7 +67,7 @@ const handleLogin=async ()=>{
         
       })
     }else{
-      alert("Somrthing went Wrong")
+      toast.error("Somrthing went Wrong")
       setuserDetails({
         email:"",
         password:""
